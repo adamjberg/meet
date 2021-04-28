@@ -18,7 +18,10 @@
 
           peer.on("call", function (call) {
             getUserMedia(
-              { video: true, audio: true },
+              {
+                video: { width: 1280, height: 720 },
+                audio: true,
+              },
               function (stream) {
                 call.answer(stream);
                 call.on("stream", handleRemoteStream);
@@ -39,7 +42,7 @@
 
         function call(peerId) {
           getUserMedia(
-            { video: true, audio: true },
+            { video: { width: 1280, height: 720 }, audio: true },
             function (stream) {
               var call = peer.call(peerId, stream);
               call.on("stream", handleRemoteStream);
@@ -54,8 +57,12 @@
           const peerVideo = document.getElementById("peer");
           peerVideo.srcObject = remoteStream;
 
-          const connectionDetails = document.getElementById("connection-details");
-          connectionDetails.remove();
+          const connectionDetails = document.getElementById(
+            "connection-details"
+          );
+          if (connectionDetails) {
+            connectionDetails.remove();
+          }
         }
       };
     </script>

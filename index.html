@@ -1,0 +1,77 @@
+<html>
+  <head>
+    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
+    <script>
+      window.onload = function () {
+        let peer = null;
+
+        const getUserMedia =
+          navigator.getUserMedia ||
+          navigator.webkitGetUserMedia ||
+          navigator.mozGetUserMedia;
+
+        const connectButton = document.getElementById("connect-btn");
+        connectButton.addEventListener("click", function () {
+          const mePeerId = document.getElementById("me-peer-id");
+
+          peer = new Peer(mePeerId.value);
+
+          peer.on("call", function (call) {
+            getUserMedia(
+              { video: true, audio: true },
+              function (stream) {
+                call.answer(stream);
+                call.on("stream", handleRemoteStream);
+              },
+              function (err) {
+                console.error("Failed to get local stream", err);
+              }
+            );
+          });
+        });
+
+        let callButton = document.getElementById("call-btn");
+        callButton.addEventListener("click", function () {
+          let peerIdInput = document.getElementById("remote-peer-id");
+          const peerId = peerIdInput.value;
+          call(peerId);
+        });
+
+        function call(peerId) {
+          getUserMedia(
+            { video: true, audio: true },
+            function (stream) {
+              var call = peer.call(peerId, stream);
+              call.on("stream", handleRemoteStream);
+            },
+            function (err) {
+              console.error("Failed to get local stream", err);
+            }
+          );
+        }
+
+        function handleRemoteStream(remoteStream) {
+          const peerVideo = document.getElementById("peer");
+          peerVideo.srcObject = remoteStream;
+
+          const connectionDetails = document.getElementById("connection-details");
+          connectionDetails.remove();
+        }
+      };
+    </script>
+  </head>
+  <body>
+    <div id="connection-details">
+      <h1>Meet</h1>
+      <input id="me-peer-id" placeholder="My Peer ID" />
+      <button id="connect-btn">Connect</button>
+
+      <input id="remote-peer-id" placeholder="Remote Peer ID" />
+      <button id="call-btn">Call</button>
+    </div>
+
+    <div>
+      <video id="peer" width="100%" height="100%" autoplay="autoplay"></video>
+    </div>
+  </body>
+</html>
